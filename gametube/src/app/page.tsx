@@ -3,18 +3,28 @@ import axios from "axios";
 import Link from 'next/link';
 import { Game, CategoryMap } from "./datatypes/datatypes";
 
+async function getAllGames(): Promise<Game[] | null> {
+  try {
+    const res = await axios.get('http://localhost:3000/games/all_games');
+    const data = await res.data;
+
+    return data.games as Game[];
+  } catch (error) {
+    return null;
+  }
+}
+
 export default async function Home() {
-  const res = await axios.get('http://localhost:3000/games/all_games');
-  if (res.status === 500) {
+  const games = await getAllGames();
+
+  if (games === null) {
     return (
       <ServerError />
     )
   }
-  const data = await res.data;
-
-  const games: Game[] = data.games;
 
   const categoryMap: CategoryMap = {};
+  
   games.forEach(game => {
     game.categories.forEach(category => {
       if (!categoryMap[category]) {
